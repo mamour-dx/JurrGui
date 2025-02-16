@@ -1,0 +1,20 @@
+body {
+    font-family: Arial, sans-serif;
+  }
+  
+  .card-img-top {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  #search-results .card {
+    margin-bottom: 1rem;
+  }
+  
+  #search-results .card-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+  }
+  
+  
