@@ -26,7 +26,7 @@ $result = $conn->query($query);
                         <i class="fas fa-search"></i>
                         Parcourir les annonces
                     </a>
-                    <a href="register.php" class="btn btn-secondary">
+                    <a href="inscription.php" class="btn btn-secondary">
                         <i class="fas fa-user-plus"></i>
                         Créer un compte
                     </a>
