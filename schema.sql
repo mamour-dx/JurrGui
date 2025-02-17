@@ -56,19 +56,6 @@ CREATE TABLE panier (
     FOREIGN KEY (betail_id) REFERENCES betail(id)
 );
 
--- Désactiver la vérification des clés étrangères
-SET FOREIGN_KEY_CHECKS = 0;
-
--- Vider les tables
-TRUNCATE TABLE panier;
-TRUNCATE TABLE commandes;
-TRUNCATE TABLE avis;
-TRUNCATE TABLE betail;
-TRUNCATE TABLE users;
-
--- Réactiver la vérification des clés étrangères
-SET FOREIGN_KEY_CHECKS = 1;
-
 -- Insertion des utilisateurs
 INSERT INTO users (nom, email, password_hash, role, telephone) VALUES
 ('Amadou Diallo', 'amadou@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'vendeur', '771234567'),
