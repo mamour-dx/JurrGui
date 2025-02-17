@@ -1,0 +1,113 @@
+# .cursorrules file for "Site de Vente de Bétail en PHP"
+
+project: "Site de Vente de Bétail en PHP"
+description: "Génération d'un site de vente de bétail moderne, responsive, et avec des animations. Le site comprend l'authentification des utilisateurs, la gestion des annonces de bétail, un système d'achat avec paiement, et bien plus."
+
+technologies:
+  backend:
+    - PHP (sans framework)
+  database:
+    - MySQL
+  frontend:
+    - HTML
+    - CSS
+    - JavaScript (sans framework ni librairie)
+  external-services:
+    - Google OAuth
+    - Wave Payment
+    - Orange Money
+
+features:
+  - auth: 
+      description: "Système d'authentification des utilisateurs"
+      tasks:
+        - Inscription / Connexion avec email et mot de passe
+        - Connexion via Google OAuth
+        - Table `users` avec champs : id, nom, email, password_hash, role (vendeur ou acheteur), date_creation
+        - Modification des informations utilisateurs
+        - Déconnexion
+  - cattle-management:
+      description: "Gestion des annonces de bétail"
+      tasks:
+        - Ajout, modification, suppression des annonces pour les vendeurs
+        - Chaque annonce comprend : id, vendeur_id, catégorie, nom_bétail, description, prix, photo, date_publication
+        - L'admin peut supprimer une annonce ou bloquer un vendeur
+        - Catégories : bovins, ovins, caprins
+  - purchase-payment:
+      description: "Achat et paiement"
+      tasks:
+        - Ajout d'articles au panier
+        - Page de panier avec articles ajoutés
+        - Intégration de paiement via Wave et Orange Money
+        - Affichage du numéro de paiement après action
+        - Confirmation de paiement avec notification par email au vendeur
+        - Historique des achats accessible pour les utilisateurs
+  - search-filters:
+      description: "Recherche et filtres"
+      tasks:
+        - Barre de recherche pour rechercher un bétail par nom ou catégorie
+        - Filtres par prix, catégorie et vendeur
+  - reviews-ratings:
+      description: "Avis et notation des vendeurs"
+      tasks:
+        - Seuls les acheteurs ayant effectué un achat peuvent laisser un avis
+        - Avis : id, acheteur_id, vendeur_id, note (1-5), commentaire, date
+        - Affichage des avis sur le profil du vendeur
+  - market-trends:
+      description: "Affichage des tendances du marché"
+      tasks:
+        - Affichage des produits les plus vendus
+        - Statistiques basées sur le nombre de ventes
+  - interface-design:
+      description: "Interface moderne et responsive"
+      tasks:
+        - Design moderne avec animations CSS et JavaScript (animations au survol, transitions fluides, effets de chargement)
+        - Compatibilité mobile et desktop
+
+database-schema:
+  - users:
+      - id: INT AUTO_INCREMENT PRIMARY KEY
+      - nom: VARCHAR(255)
+      - email: VARCHAR(255)
+      - password_hash: VARCHAR(255)
+      - role: ENUM('vendeur', 'acheteur')
+      - date_creation: DATETIME
+  - cattle:
+      - id: INT AUTO_INCREMENT PRIMARY KEY
+      - vendeur_id: INT (clé étrangère vers users)
+      - categorie: ENUM('bovins', 'ovins', 'caprins')
+      - nom_betail: VARCHAR(255)
+      - description: TEXT
+      - prix: DECIMAL(10, 2)
+      - photo: VARCHAR(255)
+      - date_publication: DATETIME
+  - purchases:
+      - id: INT AUTO_INCREMENT PRIMARY KEY
+      - acheteur_id: INT (clé étrangère vers users)
+      - vendeur_id: INT (clé étrangère vers users)
+      - cattle_id: INT (clé étrangère vers cattle)
+      - montant: DECIMAL(10, 2)
+      - date_achat: DATETIME
+      - statut: ENUM('en attente', 'payé')
+  - reviews:
+      - id: INT AUTO_INCREMENT PRIMARY KEY
+      - acheteur_id: INT (clé étrangère vers users)
+      - vendeur_id: INT (clé étrangère vers users)
+      - note: INT (1-5)
+      - commentaire: TEXT
+      - date: DATETIME
+
+responsive-design:
+  mobile: true
+  tablet: true
+  desktop: true
+
+animations:
+  - hover-effects: true
+  - smooth-transitions: true
+  - loading-effects: true
+
+payment-integrations:
+  - wave-payment: true
+  - orange-money: true
+
