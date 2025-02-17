@@ -1,6 +1,60 @@
+# IDE et éditeurs
+.cursorrules
 .vscode/
-vendor/
-composer.lock
-.env
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Fichiers système
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Dépendances et fichiers générés
+/vendor/
+/node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Fichiers de configuration sensibles
+config.php
+*.env
+.env.*
+
+# Dossiers de cache et temporaires
+/cache/
+/tmp/
+/temp/
+/logs/
+
+# Fichiers de sauvegarde
+*.bak
+*.swp
+*~
+
+# Dossier d'upload
+/uploads/*
+!/uploads/.gitkeep
+
+# Fichiers de compilation
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Fichiers de log
 *.log
-/config.php
+error_log
+access_log
+
+# Autres
+/dist/
+/build/
+.phpunit.result.cache
