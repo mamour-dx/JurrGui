@@ -100,27 +100,41 @@ $panier = $stmt->get_result();
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Bétail</th>
-                        <th>Vendeur</th>
-                        <th>Prix</th>
+                        <th>Commande</th>
+                        <th>Articles</th>
+                        <th>Total</th>
                         <th>Statut</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($commande = $commandes->fetch_assoc()): ?>
+                    <?php 
+                    $query = "
+                        SELECT c.*, 
+                               GROUP_CONCAT(CONCAT(b.nom_betail, ' (', ca.quantite, ')') SEPARATOR ', ') as articles,
+                               COUNT(ca.id) as nombre_articles,
+                               SUM(ca.quantite * ca.prix_unitaire) as total
+                        FROM commandes c
+                        JOIN commande_articles ca ON c.id = ca.commande_id
+                        JOIN betail b ON ca.betail_id = b.id
+                        WHERE c.acheteur_id = ?
+                        GROUP BY c.id
+                        ORDER BY c.date_commande DESC
+                        LIMIT 5
+                    ";
+                    
+                    $stmt = $conn->prepare($query);
+                    $stmt->bind_param("i", $_SESSION['user_id']);
+                    $stmt->execute();
+                    $commandes = $stmt->get_result();
+                    
+                    while ($commande = $commandes->fetch_assoc()): 
+                    ?>
                         <tr>
                             <td><?php echo date('d/m/Y H:i', strtotime($commande['date_commande'])); ?></td>
-                            <td>
-                                <div class="item-info">
-                                    <img src="<?php echo htmlspecialchars($commande['photo']); ?>" 
-                                         alt="<?php echo htmlspecialchars($commande['nom_betail']); ?>"
-                                         class="item-thumbnail">
-                                    <span><?php echo htmlspecialchars($commande['nom_betail']); ?></span>
-                                </div>
-                            </td>
-                            <td><?php echo htmlspecialchars($commande['vendeur_nom']); ?></td>
-                            <td><?php echo number_format($commande['prix'], 0, ',', ' '); ?> FCFA</td>
+                            <td>#<?php echo $commande['id']; ?></td>
+                            <td><?php echo htmlspecialchars($commande['articles']); ?></td>
+                            <td><?php echo number_format($commande['total'], 0, ',', ' '); ?> FCFA</td>
                             <td>
                                 <span class="status-badge status-<?php echo $commande['statut']; ?>">
                                     <?php echo ucfirst($commande['statut']); ?>

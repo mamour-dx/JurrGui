@@ -21,7 +21,7 @@ $result = $conn->query($query);
             <h1>Trouvez le meilleur bétail pour votre élevage</h1>
             <p>Plateforme de vente de bétail en ligne sécurisée et fiable</p>
             <div class="hero-buttons">
-                <a href="listings.php" class="btn btn-primary">
+                <a href="rechercher.php" class="btn btn-primary">
                     <i class="fas fa-search"></i>
                     Parcourir les annonces
                 </a>
@@ -53,7 +53,7 @@ $result = $conn->query($query);
                         <p>Découvrez notre sélection de bovins de qualité</p>
                     </div>
                 </div>
-                <a href="listings.php?category=bovins" class="stretched-link"></a>
+                <a href="rechercher.php?categorie=bovins" class="stretched-link"></a>
             </div>
 
             <!-- Ovins -->
@@ -70,7 +70,7 @@ $result = $conn->query($query);
                         <p>Explorez notre gamme d'ovins sélectionnés</p>
                     </div>
                 </div>
-                <a href="listings.php?category=ovins" class="stretched-link"></a>
+                <a href="rechercher.php?categorie=ovins" class="stretched-link"></a>
             </div>
 
             <!-- Caprins -->
@@ -87,7 +87,7 @@ $result = $conn->query($query);
                         <p>Trouvez les meilleurs caprins pour votre élevage</p>
                     </div>
                 </div>
-                <a href="listings.php?category=caprins" class="stretched-link"></a>
+                <a href="rechercher.php?categorie=caprins" class="stretched-link"></a>
             </div>
         </div>
     </div>
@@ -98,7 +98,7 @@ $result = $conn->query($query);
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Dernières Annonces</h2>
-            <a href="listings.php" class="btn btn-outline">
+            <a href="rechercher.php" class="btn btn-outline">
                 <i class="fas fa-list"></i>
                 Voir toutes les annonces
             </a>
@@ -132,7 +132,7 @@ $result = $conn->query($query);
                                     <i class="fas fa-user"></i>
                                     <?php echo htmlspecialchars($betail['vendeur_nom']); ?>
                                 </span>
-                                <a href="listing.php?id=<?php echo $betail['id']; ?>" class="btn btn-sm btn-primary">
+                                <a href="detail_betail.php?id=<?php echo $betail['id']; ?>" class="btn btn-sm btn-primary">
                                     Voir détails
                                 </a>
                             </div>
@@ -145,7 +145,7 @@ $result = $conn->query($query);
                 <div class="no-listings">
                     <i class="fas fa-inbox fa-3x"></i>
                     <p>Aucune annonce disponible pour le moment</p>
-                    <a href="create-listing.php" class="btn btn-primary">
+                    <a href="ajouter_betail.php" class="btn btn-primary">
                         <i class="fas fa-plus"></i>
                         Publier une annonce
                     </a>

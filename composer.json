@@ -1,3 +1,20 @@
 {
-    "require": {}
+    "name": "jurrgui/marche-betail",
+    "description": "Plateforme de vente de bétail en ligne",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "ext-mysqli": "*",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
 } 

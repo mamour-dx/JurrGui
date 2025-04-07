@@ -18,17 +18,18 @@ $commande_id = $_GET['id'];
 
 // Récupérer les détails de la commande
 $query = "
-    SELECT c.*, b.nom_betail, b.photo, b.description, b.prix,
-           u.nom as vendeur_nom, u.telephone as vendeur_telephone,
-           (SELECT note FROM avis WHERE acheteur_id = ? AND vendeur_id = u.id LIMIT 1) as avis_donne
+    SELECT c.*, 
+           GROUP_CONCAT(CONCAT(b.nom_betail, '|', ca.quantite, '|', ca.prix_unitaire, '|', u.nom) SEPARATOR '||') as articles_details
     FROM commandes c
-    JOIN betail b ON c.betail_id = b.id
-    JOIN users u ON b.vendeur_id = u.id
+    JOIN commande_articles ca ON c.id = ca.commande_id
+    JOIN betail b ON ca.betail_id = b.id
+    JOIN users u ON ca.vendeur_id = u.id
     WHERE c.id = ? AND c.acheteur_id = ?
+    GROUP BY c.id
 ";
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param("iii", $_SESSION['user_id'], $commande_id, $_SESSION['user_id']);
+$stmt->bind_param("ii", $commande_id, $_SESSION['user_id']);
 $stmt->execute();
 $commande = $stmt->get_result()->fetch_assoc();
 
@@ -37,30 +38,32 @@ if (!$commande) {
     header('Location: dashboard_acheteur.php');
     exit();
 }
+
+// Parser les articles
+$articles = [];
+if (!empty($commande['articles_details'])) {
+    $articles_array = explode('||', $commande['articles_details']);
+    foreach ($articles_array as $article) {
+        list($nom, $quantite, $prix, $vendeur) = explode('|', $article);
+        $articles[] = [
+            'nom' => $nom,
+            'quantite' => $quantite,
+            'prix' => $prix,
+            'vendeur' => $vendeur
+        ];
+    }
+}
 ?>
 
 <div class="detail-commande-container">
     <div class="detail-header">
         <h1>Détail de la Commande #<?php echo $commande_id; ?></h1>
-        <a href="dashboard_acheteur.php" class="btn btn-secondary">
-            <span class="icon">←</span> Retour au tableau de bord
+        <a href="mes_commandes.php" class="btn btn-secondary">
+            <span class="icon">←</span> Retour aux commandes
         </a>
     </div>
 
     <div class="detail-grid">
-        <!-- Informations sur le bétail -->
-        <div class="detail-card betail-info">
-            <div class="betail-image">
-                <img src="<?php echo htmlspecialchars($commande['photo']); ?>" 
-                     alt="<?php echo htmlspecialchars($commande['nom_betail']); ?>">
-            </div>
-            <div class="betail-details">
-                <h2><?php echo htmlspecialchars($commande['nom_betail']); ?></h2>
-                <p class="description"><?php echo htmlspecialchars($commande['description']); ?></p>
-                <p class="price"><?php echo number_format($commande['prix'], 0, ',', ' '); ?> FCFA</p>
-            </div>
-        </div>
-
         <!-- Informations sur la commande -->
         <div class="detail-card commande-info">
             <h2>Informations de la Commande</h2>
@@ -77,36 +80,52 @@ if (!$commande) {
                         <?php echo date('d/m/Y H:i', strtotime($commande['date_commande'])); ?>
                     </span>
                 </div>
-                <?php if ($commande['date_livraison']): ?>
                 <div class="info-item">
-                    <span class="label">Date de livraison</span>
+                    <span class="label">Méthode de paiement</span>
                     <span class="value">
-                        <?php echo date('d/m/Y H:i', strtotime($commande['date_livraison'])); ?>
+                        <?php echo ucfirst($commande['methode_paiement']); ?>
                     </span>
                 </div>
-                <?php endif; ?>
             </div>
         </div>
 
-        <!-- Informations sur le vendeur -->
-        <div class="detail-card vendeur-info">
-            <h2>Informations du Vendeur</h2>
+        <!-- Liste des articles -->
+        <div class="detail-card articles-info">
+            <h2>Articles commandés</h2>
+            <div class="articles-list">
+                <?php foreach ($articles as $article): ?>
+                    <div class="article-item">
+                        <div class="article-header">
+                            <h3><?php echo htmlspecialchars($article['nom']); ?></h3>
+                            <span class="vendeur">Vendeur: <?php echo htmlspecialchars($article['vendeur']); ?></span>
+                        </div>
+                        <div class="article-details">
+                            <span class="quantite">Quantité: <?php echo $article['quantite']; ?></span>
+                            <span class="prix">Prix unitaire: <?php echo number_format($article['prix'], 0, ',', ' '); ?> FCFA</span>
+                            <span class="total">Total: <?php echo number_format($article['prix'] * $article['quantite'], 0, ',', ' '); ?> FCFA</span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Informations de livraison -->
+        <div class="detail-card livraison-info">
+            <h2>Informations de Livraison</h2>
             <div class="info-grid">
                 <div class="info-item">
                     <span class="label">Nom</span>
-                    <span class="value"><?php echo htmlspecialchars($commande['vendeur_nom']); ?></span>
+                    <span class="value"><?php echo htmlspecialchars($commande['nom_livraison']); ?></span>
                 </div>
                 <div class="info-item">
                     <span class="label">Téléphone</span>
-                    <span class="value"><?php echo htmlspecialchars($commande['vendeur_telephone']); ?></span>
+                    <span class="value"><?php echo htmlspecialchars($commande['telephone_livraison']); ?></span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Adresse</span>
+                    <span class="value"><?php echo htmlspecialchars($commande['adresse_livraison']); ?></span>
                 </div>
             </div>
-
-            <?php if ($commande['statut'] === 'livre' && !$commande['avis_donne']): ?>
-            <button onclick="ouvrirModalAvis()" class="btn btn-primary mt-3">
-                Laisser un avis
-            </button>
-            <?php endif; ?>
         </div>
 
         <!-- Actions -->
@@ -114,83 +133,20 @@ if (!$commande) {
             <h2>Actions</h2>
             <div class="actions-grid">
                 <?php if ($commande['statut'] === 'en_attente'): ?>
-                <button onclick="annulerCommande()" class="btn btn-danger">
-                    Annuler la commande
-                </button>
+                    <button onclick="annulerCommande()" class="btn btn-danger">
+                        Annuler la commande
+                    </button>
                 <?php endif; ?>
                 
-                <a href="contact.php?vendeur=<?php echo $commande['vendeur_id']; ?>" 
-                   class="btn btn-secondary">
-                    Contacter le vendeur
+                <a href="contact.php" class="btn btn-secondary">
+                    Contacter le support
                 </a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Avis -->
-<div id="modal-avis" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Laisser un avis pour <?php echo htmlspecialchars($commande['vendeur_nom']); ?></h2>
-        <form id="form-avis" onsubmit="soumettreAvis(event)">
-            <div class="form-group">
-                <label>Note</label>
-                <div class="rating">
-                    <?php for($i = 5; $i >= 1; $i--): ?>
-                    <input type="radio" id="star<?php echo $i; ?>" name="note" value="<?php echo $i; ?>" required>
-                    <label for="star<?php echo $i; ?>">⭐</label>
-                    <?php endfor; ?>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="commentaire">Commentaire</label>
-                <textarea id="commentaire" name="commentaire" required></textarea>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Envoyer</button>
-        </form>
-    </div>
-</div>
-
 <script>
-function ouvrirModalAvis() {
-    document.getElementById('modal-avis').style.display = 'block';
-}
-
-function soumettreAvis(e) {
-    e.preventDefault();
-    
-    const note = document.querySelector('input[name="note"]:checked').value;
-    const commentaire = document.getElementById('commentaire').value;
-    
-    fetch('api/ajouter_avis.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            vendeur_id: <?php echo $commande['vendeur_id']; ?>,
-            note: note,
-            commentaire: commentaire
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Avis ajouté avec succès !');
-            location.reload();
-        } else {
-            alert(data.message || 'Erreur lors de l\'ajout de l\'avis');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        alert('Une erreur est survenue');
-    });
-}
-
 function annulerCommande() {
     if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
         fetch('api/annuler_commande.php', {
@@ -205,8 +161,7 @@ function annulerCommande() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Commande annulée avec succès !');
-                window.location.href = 'dashboard_acheteur.php';
+                location.reload();
             } else {
                 alert(data.message || 'Erreur lors de l\'annulation');
             }
@@ -215,17 +170,6 @@ function annulerCommande() {
             console.error('Erreur:', error);
             alert('Une erreur est survenue');
         });
-    }
-}
-
-// Fermeture du modal
-document.querySelector('.close').onclick = function() {
-    document.getElementById('modal-avis').style.display = 'none';
-}
-
-window.onclick = function(event) {
-    if (event.target == document.getElementById('modal-avis')) {
-        document.getElementById('modal-avis').style.display = 'none';
     }
 }
 </script>
@@ -244,195 +188,155 @@ window.onclick = function(event) {
     margin-bottom: 2rem;
 }
 
-.detail-header h1 {
-    font-size: 2rem;
-    color: var(--text-color);
-}
-
 .detail-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
 }
 
 .detail-card {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: var(--card-shadow);
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 1.5rem;
 }
 
-.betail-info {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 2rem;
-}
-
-.betail-image img {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 12px;
-}
-
-.betail-details h2 {
-    font-size: 1.8rem;
-    color: var(--text-color);
-    margin-bottom: 1rem;
-}
-
-.betail-details .description {
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-}
-
-.betail-details .price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
+.detail-card h2 {
+    color: #333;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
 }
 
 .info-grid {
     display: grid;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .info-item {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
 }
 
 .info-item .label {
+    color: #666;
     font-size: 0.9rem;
-    color: var(--text-light);
+    margin-bottom: 0.25rem;
 }
 
 .info-item .value {
-    font-size: 1.1rem;
-    color: var(--text-color);
+    color: #333;
+    font-weight: 500;
 }
 
-.actions-grid {
-    display: grid;
+.articles-list {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
+}
+
+.article-item {
+    padding: 1rem;
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+
+.article-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.article-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.article-header .vendeur {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.article-details {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
 }
 
 .status-badge {
     display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
     font-size: 0.9rem;
     font-weight: 500;
-    text-transform: uppercase;
 }
 
-.status-badge.status-en_attente { 
-    background: var(--warning-light);
-    color: var(--warning-color);
+.status-en_attente {
+    background: #fff3cd;
+    color: #856404;
 }
 
-.status-badge.status-paye { 
-    background: var(--info-light);
-    color: var(--info-color);
+.status-paye {
+    background: #d4edda;
+    color: #155724;
 }
 
-.status-badge.status-livre { 
-    background: var(--success-light);
-    color: var(--success-color);
+.status-livre {
+    background: #cce5ff;
+    color: #004085;
 }
 
-.status-badge.status-annule { 
-    background: var(--danger-light);
-    color: var(--danger-color);
+.status-annule {
+    background: #f8d7da;
+    color: #721c24;
 }
 
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-}
-
-.modal-content {
-    background: white;
-    margin: 15% auto;
-    padding: 2rem;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 16px;
-    position: relative;
-}
-
-.close {
-    position: absolute;
-    right: 1.5rem;
-    top: 1.5rem;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-light);
-    transition: var(--transition-base);
-}
-
-.close:hover {
-    color: var(--text-color);
-}
-
-.rating {
+.actions-grid {
     display: flex;
-    flex-direction: row-reverse;
-    gap: 0.5rem;
-    margin: 1rem 0;
+    gap: 1rem;
 }
 
-.rating input {
-    display: none;
-}
-
-.rating label {
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
     cursor: pointer;
-    font-size: 2rem;
-    color: #ddd;
-    transition: var(--transition-base);
 }
 
-.rating label:hover,
-.rating label:hover ~ label,
-.rating input:checked ~ label {
-    color: #ffd700;
+.btn-primary {
+    background: #007bff;
+    color: #fff;
 }
 
-@media (max-width: 992px) {
-    .detail-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .betail-info {
-        grid-template-columns: 1fr;
-    }
-    
-    .betail-image img {
-        height: 250px;
-    }
+.btn-primary:hover {
+    background: #0056b3;
 }
 
-@media (max-width: 768px) {
-    .detail-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-    
-    .detail-card {
-        padding: 1.5rem;
-    }
+.btn-secondary {
+    background: #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.icon {
+    margin-right: 0.5rem;
 }
 </style>
 

@@ -8,35 +8,26 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'acheteur') {
 
 $conn = connectDB();
 
-// Récupération du panier depuis la session ou création d'un nouveau
-if (!isset($_SESSION['panier'])) {
-    $_SESSION['panier'] = [];
-}
-
-// Récupération des détails des articles du panier
+// Récupération des articles du panier depuis la base de données
 $articles = [];
 $total = 0;
 
-if (!empty($_SESSION['panier'])) {
-    $ids = array_keys($_SESSION['panier']);
-    $ids_str = implode(',', array_fill(0, count($ids), '?'));
-    
-    $stmt = $conn->prepare("
-        SELECT b.*, u.nom as vendeur_nom 
-        FROM betail b
-        JOIN users u ON b.vendeur_id = u.id
-        WHERE b.id IN ($ids_str)
-    ");
-    $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    while ($article = $result->fetch_assoc()) {
-        $article['quantite'] = $_SESSION['panier'][$article['id']];
-        $article['sous_total'] = $article['prix'] * $article['quantite'];
-        $total += $article['sous_total'];
-        $articles[] = $article;
-    }
+$stmt = $conn->prepare("
+    SELECT b.*, u.nom as vendeur_nom, p.quantite as quantite_panier
+    FROM panier p
+    JOIN betail b ON p.betail_id = b.id
+    JOIN users u ON b.vendeur_id = u.id
+    WHERE p.acheteur_id = ?
+");
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($article = $result->fetch_assoc()) {
+    $article['quantite'] = $article['quantite_panier'];
+    $article['sous_total'] = $article['prix'] * $article['quantite'];
+    $total += $article['sous_total'];
+    $articles[] = $article;
 }
 ?>
 
@@ -109,14 +100,14 @@ if (!empty($_SESSION['panier'])) {
 </div>
 
 <script>
-function updateQuantite(articleId, action) {
+function updateQuantite(betailId, action) {
     fetch('api/update_panier.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            article_id: articleId,
+            betail_id: betailId,
             action: action
         })
     })
@@ -127,19 +118,22 @@ function updateQuantite(articleId, action) {
         } else {
             alert(data.message || 'Erreur lors de la mise à jour du panier');
         }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la mise à jour');
     });
 }
 
-function removeArticle(articleId) {
+function removeArticle(betailId) {
     if (confirm('Êtes-vous sûr de vouloir retirer cet article du panier ?')) {
-        fetch('api/update_panier.php', {
+        fetch('api/retirer_panier.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                article_id: articleId,
-                action: 'remove'
+                betail_id: betailId
             })
         })
         .then(response => response.json())
@@ -149,6 +143,10 @@ function removeArticle(articleId) {
             } else {
                 alert(data.message || 'Erreur lors de la suppression');
             }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors de la suppression');
         });
     }
 }
@@ -249,12 +247,6 @@ function removeArticle(articleId) {
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
     font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.btn-block {
-    width: 100%;
-    text-align: center;
 }
 
 @media (max-width: 768px) {
@@ -266,8 +258,13 @@ function removeArticle(articleId) {
         grid-template-columns: 1fr;
     }
     
-    .article-actions {
-        align-items: flex-start;
+    .article-image {
+        text-align: center;
+    }
+    
+    .article-image img {
+        width: 200px;
+        height: 150px;
     }
 }
 </style>

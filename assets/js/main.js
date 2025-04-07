@@ -23,4 +23,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-}); 
+});
+
+// Fonction pour mettre à jour le compteur du panier
+function updateCartCount(count) {
+    const cartBadge = document.querySelector('.badge');
+    if (cartBadge) {
+        if (count > 0) {
+            cartBadge.textContent = count;
+            cartBadge.style.display = 'inline-block';
+        } else {
+            cartBadge.style.display = 'none';
+        }
+    }
+} 

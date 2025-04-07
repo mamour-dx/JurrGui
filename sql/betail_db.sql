@@ -43,13 +43,18 @@ CREATE TABLE `avis` (
 --
 
 CREATE TABLE `betail` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `vendeur_id` int(11) NOT NULL,
   `categorie` enum('bovins','ovins','caprins') NOT NULL,
   `nom_betail` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
   `prix` decimal(10,2) NOT NULL,
   `photo` varchar(255) DEFAULT NULL,
+  `statut` enum('disponible','reserve','vendu') DEFAULT 'disponible',
+  `date_publication` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `vendeur_id` (`vendeur_id`),
+  CONSTRAINT `betail_ibfk_1` FOREIGN KEY (`vendeur_id`) REFERENCES `users` (`id`)
   `date_publication` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -69,12 +74,55 @@ INSERT INTO `betail` (`id`, `vendeur_id`, `categorie`, `nom_betail`, `descriptio
 --
 
 CREATE TABLE `commandes` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `acheteur_id` int(11) NOT NULL,
-  `betail_id` int(11) NOT NULL,
-  `date_commande` datetime DEFAULT current_timestamp(),
+  `nom_livraison` varchar(100) NOT NULL,
+  `telephone_livraison` varchar(20) NOT NULL,
+  `adresse_livraison` text NOT NULL,
+  `methode_paiement` enum('wave','orange_money','livraison') NOT NULL,
   `statut` enum('en_attente','paye','livre','annule') DEFAULT 'en_attente',
-  `methode_paiement` enum('wave','orange_money') DEFAULT NULL
+  `date_commande` datetime DEFAULT current_timestamp(),
+  `date_modification` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `acheteur_id` (`acheteur_id`),
+  CONSTRAINT `commandes_ibfk_1` FOREIGN KEY (`acheteur_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `commande_articles`
+--
+
+CREATE TABLE `commande_articles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `commande_id` int(11) NOT NULL,
+  `betail_id` int(11) NOT NULL,
+  `quantite` int(11) NOT NULL,
+  `prix_unitaire` decimal(10,2) NOT NULL,
+  `vendeur_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `commande_id` (`commande_id`),
+  KEY `betail_id` (`betail_id`),
+  KEY `vendeur_id` (`vendeur_id`),
+  CONSTRAINT `commande_articles_ibfk_1` FOREIGN KEY (`commande_id`) REFERENCES `commandes` (`id`),
+  CONSTRAINT `commande_articles_ibfk_2` FOREIGN KEY (`betail_id`) REFERENCES `betail` (`id`),
+  CONSTRAINT `commande_articles_ibfk_3` FOREIGN KEY (`vendeur_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `message` text NOT NULL,
+  `lien` varchar(255) DEFAULT NULL,
+  `date_creation` datetime DEFAULT current_timestamp(),
+  `lu` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -120,6 +168,22 @@ INSERT INTO `users` (`id`, `nom`, `email`, `password_hash`, `role`, `telephone`,
 (5, 'Mamour Dieng', 'mamourdieng@esp.sn', '$2y$10$cH0DBgxXwt4NKwEvB5zgAOGGEb1IPBASg8r7O1dNjiGlmNUYYkyiq', 'acheteur', '778171725', 1, '2025-02-17 13:40:03');
 
 --
+-- Table structure for table `transactions`
+--
+
+CREATE TABLE `transactions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `commande_id` int(11) NOT NULL,
+  `montant` decimal(10,2) NOT NULL,
+  `methode_paiement` enum('wave','orange_money','livraison') NOT NULL,
+  `transaction_id` varchar(255) NOT NULL,
+  `date_creation` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `commande_id` (`commande_id`),
+  CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`commande_id`) REFERENCES `commandes` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
 -- Indexes for dumped tables
 --
 
@@ -143,8 +207,7 @@ ALTER TABLE `betail`
 --
 ALTER TABLE `commandes`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `acheteur_id` (`acheteur_id`),
-  ADD KEY `betail_id` (`betail_id`);
+  ADD KEY `acheteur_id` (`acheteur_id`);
 
 --
 -- Indexes for table `panier`
@@ -216,8 +279,7 @@ ALTER TABLE `betail`
 -- Constraints for table `commandes`
 --
 ALTER TABLE `commandes`
-  ADD CONSTRAINT `commandes_ibfk_1` FOREIGN KEY (`acheteur_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `commandes_ibfk_2` FOREIGN KEY (`betail_id`) REFERENCES `betail` (`id`);
+  ADD CONSTRAINT `commandes_ibfk_1` FOREIGN KEY (`acheteur_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `panier`
