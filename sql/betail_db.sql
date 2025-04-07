@@ -62,9 +62,9 @@ CREATE TABLE `betail` (
 --
 
 INSERT INTO `betail` (`id`, `vendeur_id`, `categorie`, `nom_betail`, `description`, `prix`, `photo`, `date_publication`, `statut`) VALUES
-(1, 1, 'bovins', 'Taureau Gobra', 'Magnifique taureau de race Gobra, parfait pour l\'?levage', 800000.00, 'assets/images/betail/taureau_gobra.jpeg', '2025-02-17 14:23:38', 'reserve'),
-(2, 1, 'ovins', 'B?lier Ladoum', 'B?lier Ladoum pure race, id?al pour la reproduction', 450000.00, 'assets/images/betail/belier_ladoum.jpeg', '2025-02-17 14:23:38', 'disponible'),
-(3, 1, 'caprins', 'Ch?vre Djallonk?', 'Ch?vre Djallonk? en bonne sant?, bonne productrice de lait', 120000.00, 'assets/images/betail/chevre_djallonke.jpeg', '2025-02-17 14:23:38', 'disponible'),
+(1, 1, 'bovins', 'Taureau Gobra', 'Magnifique taureau de race Gobra, parfait pour l\'élevage', 800000.00, 'assets/images/betail/taureau_gobra.jpeg', '2025-02-17 14:23:38', 'reserve'),
+(2, 1, 'ovins', 'Bélier Ladoum', 'Bélier Ladoum pure race, idéal pour la reproduction', 450000.00, 'assets/images/betail/belier_ladoum.jpeg', '2025-02-17 14:23:38', 'disponible'),
+(3, 1, 'caprins', 'Chèvre Djallonké', 'Chèvre Djallonké en bonne santé, bonne productrice de lait', 120000.00, 'assets/images/betail/chevre_djallonke.jpeg', '2025-02-17 14:23:38', 'disponible'),
 (4, 4, 'ovins', 'Francois', 'ff', 500000.00, 'uploads/betail/67b3472bdee17.jpg', '2025-02-17 14:26:51', 'reserve'),
 (5, 7, 'bovins', 'Francois', 'uiu', 9.00, 'uploads/betail/67f3b934e7400.png', '2025-04-07 11:38:28', 'reserve');
 
