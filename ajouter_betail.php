@@ -30,25 +30,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $filename = $_FILES['photo']['name'];
         $filetype = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         
+        // Vérification du type de fichier
         if (!in_array($filetype, $allowed)) {
             $errors[] = "Format de fichier non autorisé. Utilisez JPG, JPEG ou PNG";
         }
         
+        // Vérification de la taille (5MB max)
+        if ($_FILES['photo']['size'] > 5 * 1024 * 1024) {
+            $errors[] = "L'image ne doit pas dépasser 5MB";
+        }
+        
         if (empty($errors)) {
             $newname = uniqid() . "." . $filetype;
-            $upload_dir = "uploads/betail/";
+            $upload_dir = __DIR__ . "/uploads/betail/";
+            
+            // Création du dossier si nécessaire
             if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
+                if (!mkdir($upload_dir, 0777, true)) {
+                    $errors[] = "Impossible de créer le dossier d'upload";
+                }
             }
             
-            if (move_uploaded_file($_FILES['photo']['tmp_name'], $upload_dir . $newname)) {
-                $photo_path = $upload_dir . $newname;
-            } else {
-                $errors[] = "Erreur lors de l'upload de l'image";
+            // Vérification des permissions
+            if (!is_writable($upload_dir)) {
+                $errors[] = "Le dossier d'upload n'a pas les permissions nécessaires";
+            }
+            
+            if (empty($errors)) {
+                if (move_uploaded_file($_FILES['photo']['tmp_name'], $upload_dir . $newname)) {
+                    $photo_path = "uploads/betail/" . $newname;
+                } else {
+                    $errors[] = "Erreur lors de l'upload de l'image. Code d'erreur : " . $_FILES['photo']['error'];
+                }
             }
         }
     } else {
         $errors[] = "Une photo est requise";
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] !== 0) {
+            $errors[] = "Erreur lors de l'upload : " . $_FILES['photo']['error'];
+        }
     }
     
     if (empty($errors)) {
