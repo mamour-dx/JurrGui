@@ -135,12 +135,33 @@ $total_final = $total + $frais_service;
                             <li>Conservez votre reçu de transaction</li>
                         </ol>
                     </div>
+
+                    <div class="methode-item">
+                        <h3>Paiement à la livraison</h3>
+                        <div class="livraison-info">
+                            <p>En choisissant le paiement à la livraison :</p>
+                            <ol>
+                                <li>Préparez le montant exact en espèces</li>
+                                <li>Le vendeur vous contactera pour confirmer la livraison</li>
+                                <li>Vous paierez directement au livreur à la réception</li>
+                                <li>Un reçu vous sera remis lors du paiement</li>
+                            </ol>
+                            <div class="warning-box">
+                                <p><strong>Note importante :</strong></p>
+                                <ul>
+                                    <li>Le paiement doit être effectué en espèces</li>
+                                    <li>Préparez le montant exact pour faciliter la transaction</li>
+                                    <li>La commande peut être annulée si le paiement n'est pas disponible à la livraison</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="important-notice">
                     <h3>⚠️ Important</h3>
                     <ul>
-                        <li>Effectuez un paiement séparé pour chaque vendeur</li>
+                        <li>Pour le paiement mobile : effectuez un paiement séparé pour chaque vendeur</li>
                         <li>Utilisez exactement le même montant indiqué</li>
                         <li>Gardez vos reçus de transaction</li>
                         <li>En cas de problème, contactez le vendeur directement</li>
@@ -150,30 +171,60 @@ $total_final = $total + $frais_service;
                 <form id="confirmationForm" action="confirmation_paiement.php" method="POST">
                     <input type="hidden" name="commande_id" value="<?php echo uniqid(); ?>">
                     <div class="form-group">
-                        <label for="methode_paiement">Méthode de paiement utilisée</label>
-                        <select id="methode_paiement" name="methode_paiement" class="form-control" required>
+                        <label for="methode_paiement">Méthode de paiement</label>
+                        <select id="methode_paiement" name="methode_paiement" class="form-control" required onchange="toggleTransactionField()">
                             <option value="">Choisir une méthode</option>
                             <option value="wave">Wave</option>
                             <option value="orange_money">Orange Money</option>
+                            <option value="livraison">Paiement à la livraison</option>
                         </select>
                     </div>
                     
-                    <div class="form-group">
+                    <div id="transaction-field" class="form-group">
                         <label for="transaction_id">Numéro(s) de transaction</label>
                         <input type="text" id="transaction_id" name="transaction_id" 
-                               class="form-control" required
+                               class="form-control"
                                placeholder="Ex: W123456, W123457">
                         <small class="form-text">Si plusieurs paiements, séparez les numéros par des virgules</small>
                     </div>
+
+                    <div id="livraison-field" class="form-group" style="display: none;">
+                        <div class="confirmation-box">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="confirm_livraison" name="confirm_livraison" required>
+                                <span class="checkmark"></span>
+                                Je confirme avoir le montant exact pour le paiement à la livraison
+                            </label>
+                        </div>
+                    </div>
                     
                     <button type="submit" class="btn btn-primary btn-block">
-                        J'ai effectué le paiement
+                        Confirmer la commande
                     </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function toggleTransactionField() {
+    const methodePaiement = document.getElementById('methode_paiement').value;
+    const transactionField = document.getElementById('transaction-field');
+    const livraisonField = document.getElementById('livraison-field');
+    const transactionInput = document.getElementById('transaction_id');
+    
+    if (methodePaiement === 'livraison') {
+        transactionField.style.display = 'none';
+        livraisonField.style.display = 'block';
+        transactionInput.removeAttribute('required');
+    } else {
+        transactionField.style.display = 'block';
+        livraisonField.style.display = 'none';
+        transactionInput.setAttribute('required', 'required');
+    }
+}
+</script>
 
 <style>
 .paiement-container {
@@ -312,15 +363,123 @@ $total_final = $total + $frais_service;
     border-radius: 4px;
 }
 
+.confirmation-box {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+    color: #495057;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border: 2px solid var(--primary-color);
+    border-radius: 6px;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.checkbox-container:hover .checkmark {
+    background-color: #f8f9fa;
+}
+
+.checkbox-container input:checked + .checkmark {
+    background-color: var(--primary-color);
+}
+
+.checkbox-container input:checked + .checkmark:after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
 .btn-block {
     width: 100%;
-    margin-top: 1rem;
+    margin-top: 2rem;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-block:active {
+    transform: translateY(0);
+}
+
+.btn-block:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    transform: none;
 }
 
 @media (max-width: 768px) {
     .paiement-grid {
         grid-template-columns: 1fr;
     }
+    
+    .btn-block {
+        padding: 0.875rem;
+        font-size: 1rem;
+    }
+}
+
+.warning-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.warning-box ul {
+    margin: 0.5rem 0 0 1.5rem;
+    padding: 0;
+}
+
+.livraison-info {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 1rem;
 }
 </style>
 
