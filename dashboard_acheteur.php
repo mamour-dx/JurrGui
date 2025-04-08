@@ -111,14 +111,11 @@ $panier = $stmt->get_result();
                     <?php 
                     $query = "
                         SELECT c.*, 
-                               GROUP_CONCAT(CONCAT(b.nom_betail, ' (', ca.quantite, ')') SEPARATOR ', ') as articles,
-                               COUNT(ca.id) as nombre_articles,
-                               SUM(ca.quantite * ca.prix_unitaire) as total
+                               b.nom_betail,
+                               b.prix as prix_total
                         FROM commandes c
-                        JOIN commande_articles ca ON c.id = ca.commande_id
-                        JOIN betail b ON ca.betail_id = b.id
+                        JOIN betail b ON c.betail_id = b.id
                         WHERE c.acheteur_id = ?
-                        GROUP BY c.id
                         ORDER BY c.date_commande DESC
                         LIMIT 5
                     ";
@@ -132,9 +129,9 @@ $panier = $stmt->get_result();
                     ?>
                         <tr>
                             <td><?php echo date('d/m/Y H:i', strtotime($commande['date_commande'])); ?></td>
-                            <td>#<?php echo $commande['id']; ?></td>
-                            <td><?php echo htmlspecialchars($commande['articles']); ?></td>
-                            <td><?php echo number_format($commande['total'], 0, ',', ' '); ?> FCFA</td>
+                            <td>#<?php echo $commande['reference']; ?></td>
+                            <td><?php echo htmlspecialchars($commande['nom_betail']); ?></td>
+                            <td><?php echo number_format($commande['prix_total'], 0, ',', ' '); ?> FCFA</td>
                             <td>
                                 <span class="status-badge status-<?php echo $commande['statut']; ?>">
                                     <?php echo ucfirst($commande['statut']); ?>

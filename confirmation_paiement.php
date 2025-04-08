@@ -190,7 +190,7 @@ if (!$commande) {
                 <button type="submit" class="btn btn-primary btn-large">
                     Confirmer le paiement
                 </button>
-                <a href="mes_commandes.php" class="btn btn-secondary">
+                <a href="<?php echo $_SESSION['role'] === 'vendeur' ? 'mes_commandes_vendeur.php' : 'mes_commandes_acheteur.php'; ?>" class="btn btn-secondary">
                     Annuler
                 </a>
             </div>

@@ -58,7 +58,7 @@ if (!empty($commande['articles_details'])) {
 <div class="detail-commande-container">
     <div class="detail-header">
         <h1>Détail de la Commande #<?php echo $commande_id; ?></h1>
-        <a href="mes_commandes.php" class="btn btn-secondary">
+        <a href="<?php echo $_SESSION['role'] === 'vendeur' ? 'mes_commandes_vendeur.php' : 'mes_commandes_acheteur.php'; ?>" class="btn btn-secondary">
             <span class="icon">←</span> Retour aux commandes
         </a>
     </div>
