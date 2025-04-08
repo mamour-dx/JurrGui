@@ -118,6 +118,7 @@ CREATE TABLE `panier` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `acheteur_id` int(11) NOT NULL,
   `betail_id` int(11) NOT NULL,
+  `quantite` int(11) NOT NULL DEFAULT 1,
   `date_ajout` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `acheteur_betail` (`acheteur_id`, `betail_id`),
