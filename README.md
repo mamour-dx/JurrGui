@@ -74,18 +74,6 @@ mkdir -p uploads/betail
 chmod -R 755 uploads
 ```
 
-## Structure du projet
-
-```
-marche-betail/
-├── api/                # Endpoints API
-├── assets/            # Fichiers statiques (CSS, JS, images)
-├── includes/          # Fichiers d'inclusion PHP
-├── sql/              # Scripts SQL
-├── uploads/          # Dossier pour les uploads
-└── vendor/           # Dépendances
-```
-
 ## Configuration de la base de données
 
 La base de données est automatiquement créée avec le script SQL fourni. Elle contient les tables suivantes :
