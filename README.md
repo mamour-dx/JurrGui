@@ -71,7 +71,7 @@ cp includes/config.example.php includes/config.php
 
 ```bash
 mkdir -p uploads/betail
-chmod -R 777 uploads
+chmod -R 755 uploads
 ```
 
 ## Structure du projet
