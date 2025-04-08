@@ -78,6 +78,24 @@ $similaires = $stmt->get_result();
                         (<?php echo $betail['nombre_avis']; ?> avis)
                     </p>
                 <?php endif; ?>
+                
+                <div class="contact-info">
+                    <h4>Informations de contact</h4>
+                    <p class="phone">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:<?php echo htmlspecialchars($betail['vendeur_telephone']); ?>">
+                            <?php echo htmlspecialchars($betail['vendeur_telephone']); ?>
+                        </a>
+                    </p>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <p class="email">
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:<?php echo htmlspecialchars($betail['vendeur_email']); ?>">
+                                <?php echo htmlspecialchars($betail['vendeur_email']); ?>
+                            </a>
+                        </p>
+                    <?php endif; ?>
+                </div>
             </div>
             
             <div class="description">
@@ -235,9 +253,75 @@ function acheterMaintenant(betailId) {
 }
 
 .vendor-info {
-    padding: 1rem;
     background: #f8f9fa;
+    padding: 1.5rem;
     border-radius: 8px;
+    margin: 1.5rem 0;
+}
+
+.vendor-info h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.contact-info {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.contact-info h4 {
+    color: #555;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.contact-info p {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.contact-info i {
+    margin-right: 0.75rem;
+    color: #007bff;
+    width: 20px;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 123, 255, 0.1);
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.contact-info a:hover i {
+    transform: scale(1.1);
+    background: rgba(0, 123, 255, 0.2);
+}
+
+.contact-info .phone i {
+    transform: rotate(15deg);
+}
+
+.contact-info .email i {
+    font-size: 1.1rem;
+}
+
+.contact-info a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.contact-info a:hover {
+    color: #007bff;
+}
+
+.phone {
+    font-size: 1.1rem;
+    font-weight: 500;
 }
 
 .action-buttons {
