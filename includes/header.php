@@ -113,7 +113,7 @@ require_once 'db.php';
         <nav>
             <div class="logo">
                 <a href="index.php">
-                    <img src="logo-1.png" alt="Logo JurrGui" width="32" height="32">
+                    <img src="logo.png" alt="Logo JurrGui" width="32" height="32">
                     JurrGui
                 </a>
             </div>
