@@ -76,12 +76,7 @@ chmod -R 755 uploads
 
 ## Configuration de la base de données
 
-La base de données est automatiquement créée avec le script SQL fourni. Elle contient les tables suivantes :
-
-- `users` : Utilisateurs (acheteurs et vendeurs)
-- `betail` : Annonces de bétail
-- `commandes` : Commandes des acheteurs
-- `avis` : Avis sur les vendeurs
+La base de données est automatiquement créée avec le script SQL fourni.
 
 ## Utilisation
 
