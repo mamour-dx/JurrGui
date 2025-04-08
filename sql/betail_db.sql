@@ -27,11 +27,11 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nom` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL UNIQUE,
-  `password` varchar(255) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
   `telephone` varchar(20) NOT NULL,
   `role` enum('acheteur','vendeur','admin') NOT NULL,
   `date_inscription` datetime DEFAULT current_timestamp(),
-  `statut` enum('actif','inactif') DEFAULT 'actif',
+  `actif` TINYINT(1) DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -39,7 +39,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`nom`, `email`, `password`, `telephone`, `role`) VALUES
+INSERT INTO `users` (`nom`, `email`, `password_hash`, `telephone`, `role`) VALUES
 ('Admin', 'admin@marchebetail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '777777777', 'admin'),
 ('Vendeur Test', 'vendeur@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '777777778', 'vendeur');
 
