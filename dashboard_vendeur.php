@@ -56,7 +56,7 @@ $betails = $stmt->get_result();
         </a>
     </div>
 
-    <!-- Statistiques -->
+
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon">🐮</div>
